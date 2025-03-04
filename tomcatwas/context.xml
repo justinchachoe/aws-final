@@ -1,0 +1,13 @@
+<Context>
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <Resource name="jdbc/mydb"
+              auth="Container"
+              type="javax.sql.DataSource"
+              maxTotal="100"
+              maxIdle="30"
+              maxWaitMillis="10000"
+              username="admin"
+              password="teama1234**"
+              driverClassName="org.mariadb.jdbc.Driver"
+              url="jdbc:mariadb://teama-db1.c9a6qe2mqf78.ap-northeast-2.rds.amazonaws.com:3306/mydb"/>
+</Context>

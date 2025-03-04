@@ -1,0 +1,44 @@
+FROM alpine:latest AS builder
+
+# 1. OpenJDK, curl, tar 설치
+RUN apk update && \
+    apk add --no-cache openjdk8 curl tar
+
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+ENV CATALINA_HOME=/usr/local/tomcat
+ENV TOMCAT_VERSION=9.0.100
+
+# 2. Tomcat 다운로드 및 설정
+RUN curl -O https://dlcdn.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    mkdir -p $CATALINA_HOME && \
+    tar -xvf apache-tomcat-${TOMCAT_VERSION}.tar.gz -C $CATALINA_HOME --strip-components=1 && \
+    rm apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    rm -rf $CATALINA_HOME/webapps/* 
+
+# 3. MariaDB JDBC 드라이버 다운로드
+RUN curl -O https://downloads.mariadb.com/Connectors/java/connector-java-3.2.0/mariadb-java-client-3.2.0.jar && \
+    mv mariadb-java-client-3.2.0.jar $CATALINA_HOME/lib/
+
+# 4. context.xml 복사
+COPY ./context.xml $CATALINA_HOME/conf/context.xml
+
+# 5. webapp.war 파일 복사
+COPY ../target/webapp.war $CATALINA_HOME/webapps/ROOT.war
+
+FROM alpine:latest
+
+# 6. OpenJDK 설치
+RUN apk add --no-cache openjdk8-jre-base && \
+    rm -rf /var/cache/apk/*
+
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
+ENV CATALINA_HOME=/usr/local/tomcat
+ENV PATH=$JAVA_HOME/bin:$CATALINA_HOME/bin:$PATH
+
+# 7. Build 단계에서 Tomcat 복사
+COPY --from=builder $CATALINA_HOME $CATALINA_HOME
+
+EXPOSE 8080
+
+# 8. Tomcat 실행
+CMD ["sh","-c","${CATALINA_HOME}/bin/catalina.sh run"]
