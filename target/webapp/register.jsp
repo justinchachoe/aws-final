@@ -90,8 +90,13 @@
                                 // 세션에 사용자 정보 저장
                                 session.setAttribute("username", email);
                                 
-                                // welcome.jsp로 리다이렉트
-                                response.sendRedirect("welcome.jsp");
+                                // 디버깅을 위한 로그 출력
+                                System.out.println("회원가입 성공: " + email);
+                                System.out.println("세션 ID: " + session.getId());
+                                System.out.println("세션 username: " + session.getAttribute("username"));
+                                
+                                // welcome.jsp로 리다이렉트 (URL 파라미터 추가)
+                                response.sendRedirect("welcome.jsp?username=" + java.net.URLEncoder.encode(email, "UTF-8") + "&registered=true");
                                 return;
                             }
                         } catch (Exception e) {

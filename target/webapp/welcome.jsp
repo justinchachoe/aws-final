@@ -2,7 +2,26 @@
 <%
     // 세션 체크
     String username = (String) session.getAttribute("username");
+    String registeredParam = request.getParameter("registered");
+    String usernameParam = request.getParameter("username");
+    boolean isNewRegistration = "true".equals(registeredParam);
+    
+    // 디버깅을 위한 로그 출력
+    System.out.println("Welcome 페이지 접근");
+    System.out.println("세션 ID: " + session.getId());
+    System.out.println("세션 username: " + username);
+    System.out.println("URL username: " + usernameParam);
+    System.out.println("URL registered: " + registeredParam);
+    
+    // 세션에 username이 없지만 URL 파라미터로 전달된 경우 세션에 저장
+    if (username == null && usernameParam != null && isNewRegistration) {
+        username = usernameParam;
+        session.setAttribute("username", username);
+        System.out.println("URL 파라미터에서 username 복원: " + username);
+    }
+    
     if (username == null) {
+        System.out.println("username이 null이므로 login.jsp로 리다이렉트");
         response.sendRedirect("login.jsp");
         return;
     }
@@ -15,10 +34,10 @@
     <title>환영합니다</title>
     <link rel="stylesheet" href="css/styles.css">
     <script>
-        // 2초 후 메인 페이지로 자동 이동
+        // 4초 후 메인 페이지로 자동 이동
         setTimeout(function() {
             window.location.href = "index.jsp";
-        }, 2000);
+        }, 4000);
     </script>
 </head>
 <body>

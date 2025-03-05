@@ -1,5 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // 디버깅을 위한 로그 출력
+    System.out.println("인덱스 페이지 접근");
+    System.out.println("세션 ID: " + session.getId());
+    System.out.println("현재 세션 username: " + session.getAttribute("username"));
+    
+    // URL 파라미터 확인
+    String loginParam = request.getParameter("login");
+    String usernameParam = request.getParameter("username");
+    System.out.println("URL login: " + loginParam);
+    System.out.println("URL username: " + usernameParam);
+    
+    // 세션에 username이 없지만 URL 파라미터로 전달된 경우 세션에 저장
+    if (session.getAttribute("username") == null && usernameParam != null && "success".equals(loginParam)) {
+        session.setAttribute("username", usernameParam);
+        System.out.println("URL 파라미터에서 username 복원: " + usernameParam);
+        System.out.println("세션에 username 저장 후 세션 ID: " + session.getId());
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>

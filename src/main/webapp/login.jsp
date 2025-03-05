@@ -17,6 +17,11 @@
         
         <div class="card">
             <%
+                // 디버깅을 위한 로그 출력
+                System.out.println("로그인 페이지 접근");
+                System.out.println("세션 ID: " + session.getId());
+                System.out.println("현재 세션 username: " + session.getAttribute("username"));
+                
                 String email = request.getParameter("email");
                 String password = request.getParameter("password");
                 String errorMessage = null;
@@ -40,14 +45,23 @@
                         
                         if (rs.next()) {
                             // 로그인 성공
-                            session.setAttribute("username", rs.getString("username"));
-                            response.sendRedirect("index.jsp");
+                            String username = rs.getString("username");
+                            session.setAttribute("username", username);
+                            
+                            // 디버깅을 위한 로그 출력
+                            System.out.println("로그인 성공: " + username);
+                            System.out.println("세션에 username 저장 후 세션 ID: " + session.getId());
+                            
+                            // URL 파라미터를 통해 username 전달
+                            response.sendRedirect("index.jsp?login=success&username=" + java.net.URLEncoder.encode(username, "UTF-8"));
                             return;
                         } else {
                             errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+                            System.out.println("로그인 실패: 이메일 또는 비밀번호가 올바르지 않음");
                         }
                     } catch (Exception e) {
                         errorMessage = "데이터베이스 오류: " + e.getMessage();
+                        System.out.println("로그인 중 오류 발생: " + e.getMessage());
                         e.printStackTrace();
                     } finally {
                         try {
