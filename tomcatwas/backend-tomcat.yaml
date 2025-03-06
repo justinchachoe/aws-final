@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prj-tomcat
+  name: deploy-tomcat
+  labels:
+    app: tomcatwas   # Deployment에 레이블 추가
+spec:
+  replicas: 2  # 원하는 복제본 수 설정
+  selector:
+    matchLabels:
+      app: tomcatwas  # 이 레이블을 가진 Pod을 선택
+  template:
+    metadata:
+      labels:
+        app: tomcatwas  # Pod에 적용될 레이블
+    spec:
+      volumes:
+        - name: session-data
+          emptyDir: {}
+      containers:
+      - name: tomcat-prj
+        image: 715841324912.dkr.ecr.ap-northeast-2.amazonaws.com/tomcatwas:v3.0
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "30m"
+          limits:
+            cpu: "50m"
+        ports:
+          - containerPort: 8080  # Tomcat이 사용하는 포트
+        volumeMounts:
+          - name: session-data
+            mountPath: /usr/local/tomcat/session
+  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat-svc
+  namespace: prj-tomcat
+  labels:
+    app: tomcatwas  # 레이블 추가
+spec:
+  selector:
+    app: tomcatwas
+  ports:
+    - protocol: TCP
+      port: 8080   # Service가 노출하는 포트
+      targetPort: 8080 # Pod 내부에서 사용하는 포트
+  type: ClusterIP
+  clusterIP: 172.20.250.250
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tomcat-hpa
+  namespace: prj-tomcat
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: deploy-tomcat
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 50

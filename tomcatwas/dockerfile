@@ -19,11 +19,8 @@ RUN curl -O https://dlcdn.apache.org/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apac
 RUN curl -O https://downloads.mariadb.com/Connectors/java/connector-java-3.2.0/mariadb-java-client-3.2.0.jar && \
     mv mariadb-java-client-3.2.0.jar $CATALINA_HOME/lib/
 
-# 4. context.xml 복사
-COPY ./context.xml $CATALINA_HOME/conf/context.xml
-
 # 5. webapp.war 파일 복사
-COPY ../target/webapp.war $CATALINA_HOME/webapps/ROOT.war
+COPY ./webapp.war $CATALINA_HOME/webapps/ROOT.war
 
 FROM alpine:latest
 
